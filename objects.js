@@ -156,7 +156,7 @@ module.exports = function (RED) {
 
                     // ====  PUT OBJECT  ===================================================
                 case "putObject":
-                    minioClient.putObject(opParams.bucketName, opParams.objectName, opParams.stream, function (err, etag) {
+                    minioClient.putObject(opParams.bucketName, opParams.objectName, opParams.stream, opParams.metaData, function (err, etag) {
                         if (err) {
                             helpers.statusUpdate(node, "red", "dot", 'Error', 5000);
                             node.error = err;
@@ -333,11 +333,8 @@ module.exports = function (RED) {
                 if (!node.output) {
                     timerId = setTimeout(check, 50);
                 } else {
-                    node.send([{
-                        'payload': node.output
-                    }, {
-                        'payload': node.error
-                    }]);
+                    const msgArray = helpers.buildOutMessage(RED, msg, node.output, node.error);
+                    node.send(msgArray);
                 }
             }, 50);
 
